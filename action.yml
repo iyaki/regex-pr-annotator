@@ -2,10 +2,10 @@ name: 'PR Annotate Regex'
 description: 'Annotate pull requests based on regex findings in added lines'
 inputs:
   github-token:
-    description: 'GitHub token for API calls'
-    required: true
+    description: 'GitHub token for API calls (optional; falls back to GITHUB_TOKEN env var)'
+    required: false
   rules:
-    description: 'JSON array of rule objects, each with fields: regex, annotation-level, message, and optional paths (regex patterns for file filtering)'
+    description: 'JSON array of rule objects, each with fields: regex, message (supports {regex}, {line}, {match}), level (optional, default: warning), and paths (optional, regex patterns for file filtering)'
     required: true
 runs:
   using: 'node20'
