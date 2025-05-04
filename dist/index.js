@@ -31850,11 +31850,9 @@ async function run() {
 
     const { owner, repo } = context.repo;
     const prNumber = context.payload.pull_request.number;
-    const headSha = context.payload.pull_request.head.sha;
     const octokit = github.getOctokit(token);
 
     const { data: files } = await octokit.rest.pulls.listFiles({ owner, repo, pull_number: prNumber });
-    let annotations = [];
 
     for (const file of files) {
       if (!file.patch) continue;
@@ -31879,13 +31877,8 @@ async function run() {
               const lvl = rule['annotation-level'] || 'warning';
               const msgTemplate = rule.message || 'Line matches regex "{regex}"';
               const message = msgTemplate.replace('{regex}', rule.regex).replace('{line}', text);
-              annotations.push({
-                path: file.filename,
-                start_line: newLine,
-                end_line: newLine,
-                annotation_level: lvl,
-                message,
-              });
+
+              core[lvl](message, { file: file.filename, startLine: newLine})
             }
           }
         } else if (!line.startsWith('-')) {
@@ -31894,28 +31887,6 @@ async function run() {
       }
     }
 
-    if (annotations.length === 0) {
-      console.log('No regex matches found.');
-      return;
-    }
-    if (annotations.length > 50) {
-      core.warning(`More than 50 annotations found: only reporting first 50 out of ${annotations.length}`);
-      annotations = annotations.slice(0, 50);
-    }
-
-    await octokit.rest.checks.create({
-      owner,
-      repo,
-      name: 'PR Annotate Regex',
-      head_sha: headSha,
-      status: 'completed',
-      conclusion: 'neutral',
-      output: {
-        title: 'Regex Annotation Results',
-        summary: `${annotations.length} annotations created.`,
-        annotations,
-      },
-    });
   } catch (error) {
     core.setFailed(error.message);
   }
