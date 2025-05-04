@@ -4,17 +4,9 @@ inputs:
   github-token:
     description: 'GitHub token for API calls'
     required: true
-  regex:
-    description: 'Regular expression to match on added lines'
+  rules:
+    description: 'JSON array of rule objects, each with fields: regex, annotation-level, and message'
     required: true
-  annotation-level:
-    description: 'Annotation level: notice, warning, or failure'
-    required: false
-    default: 'warning'
-  message:
-    description: 'Annotation message; use {regex} to include the regex and {line} to include the matching line'
-    required: false
-    default: 'Line matches regex "{regex}"'
 runs:
   using: 'node20'
   main: 'index.js'

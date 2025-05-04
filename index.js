@@ -4,10 +4,15 @@ const github = require('@actions/github');
 async function run() {
   try {
     const token = core.getInput('github-token', { required: true });
-    const regexInput = core.getInput('regex', { required: true });
-    const level = core.getInput('annotation-level') || 'warning';
-    const messageTemplate = core.getInput('message');
-    const regex = new RegExp(regexInput);
+    const rulesInput = core.getInput('rules', { required: true });
+    let rules;
+    try {
+      rules = JSON.parse(rulesInput);
+      if (!Array.isArray(rules)) throw new Error('`rules` must be a JSON array');
+    } catch (err) {
+      core.setFailed(`Invalid JSON for rules: ${err.message}`);
+      return;
+    }
     const context = github.context;
 
     if (!context.payload.pull_request) {
@@ -34,14 +39,20 @@ async function run() {
         } else if (line.startsWith('+') && !line.startsWith('+++')) {
           newLine++;
           const text = line.slice(1);
-          if (regex.test(text)) {
-            annotations.push({
-              path: file.filename,
-              start_line: newLine,
-              end_line: newLine,
-              annotation_level: level,
-              message: messageTemplate.replace('{regex}', regexInput).replace('{line}', text)
-            });
+          for (const rule of rules) {
+            const re = new RegExp(rule.regex);
+            if (re.test(text)) {
+              const lvl = rule['annotation-level'] || 'warning';
+              const msgTemplate = rule.message || 'Line matches regex "{regex}"';
+              const message = msgTemplate.replace('{regex}', rule.regex).replace('{line}', text);
+              annotations.push({
+                path: file.filename,
+                start_line: newLine,
+                end_line: newLine,
+                annotation_level: lvl,
+                message,
+              });
+            }
           }
         } else if (!line.startsWith('-')) {
           newLine++;
