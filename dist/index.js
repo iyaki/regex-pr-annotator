@@ -31831,7 +31831,12 @@ const github = __nccwpck_require__(3228);
 
 async function run() {
   try {
-    const token = core.getInput('github-token', { required: true });
+    const token = core.getInput('github-token') || process.env.GITHUB_TOKEN;
+    if (!token) {
+      core.setFailed('GitHub token is required (input or GITHUB_TOKEN env var)');
+      return;
+    }
+
     const rulesInput = core.getInput('rules', { required: true });
     let rules;
     try {
@@ -31841,6 +31846,9 @@ async function run() {
       core.setFailed(`Invalid JSON for rules: ${err.message}`);
       return;
     }
+
+    const validLevels = ['notice', 'warning', 'error'];
+
     const context = github.context;
 
     if (!context.payload.pull_request) {
@@ -31862,6 +31870,7 @@ async function run() {
         const header = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
         if (header) {
           newLine = parseInt(header[1], 10) - 1;
+
         } else if (line.startsWith('+') && !line.startsWith('+++')) {
           newLine++;
           const text = line.slice(1);
@@ -31872,17 +31881,29 @@ async function run() {
                 continue;
               }
             }
+
+            const lvl = rule['level'] || 'warning';
+            if (!validLevels.includes(lvl)) {
+              core.setFailed(`Invalid level '${lvl}'. Must be one of notice, warning, or error.`);
+              return;
+            }
+
             const re = new RegExp(rule.regex);
             if (re.test(text)) {
-              const lvl = rule['annotation-level'] || 'warning';
               const msgTemplate = rule.message || 'Line matches regex "{regex}"';
-              const message = msgTemplate.replace('{regex}', rule.regex).replace('{line}', text);
+              const matchRes = text.match(re);
+              const matchedText = matchRes ? matchRes[0] : '';
+              const message = msgTemplate
+                .replace('{regex}', rule.regex)
+                .replace('{line}', text)
+                .replace('{match}', matchedText);
 
               core[lvl](message, { file: file.filename, startLine: newLine})
             }
           }
+
         } else if (!line.startsWith('-')) {
-          newLine++;
+          ++newLine;
         }
       }
     }
