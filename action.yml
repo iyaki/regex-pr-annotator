@@ -1,4 +1,4 @@
-name: 'PR Annotate Regex'
+name: 'Regex PR Annotator'
 description: 'Annotate pull requests based on regex findings in added lines'
 inputs:
   github-token:
@@ -7,6 +7,10 @@ inputs:
   rules:
     description: 'JSON array of rule objects, each with fields: regex, message (supports {regex}, {line}, {match}), level (optional, default: warning), and paths (optional, regex patterns for file filtering)'
     required: true
+  debug:
+    description: 'Enable debug logging: outputs patches and match info'
+    required: false
+    default: 'false'
 runs:
   using: 'node20'
   main: 'dist/index.js'

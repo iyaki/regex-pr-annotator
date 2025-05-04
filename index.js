@@ -8,6 +8,7 @@ async function run() {
       core.setFailed('GitHub token is required (input or GITHUB_TOKEN env var)');
       return;
     }
+    const debug = core.getInput('debug') === 'true';
 
     const rulesInput = core.getInput('rules', { required: true });
     let rules;
@@ -18,6 +19,7 @@ async function run() {
       core.setFailed(`Invalid JSON for rules: ${err.message}`);
       return;
     }
+    if (debug) core.info(`Parsed rules: ${JSON.stringify(rules)}`);
 
     const validLevels = ['notice', 'warning', 'error'];
 
@@ -36,13 +38,23 @@ async function run() {
 
     for (const file of files) {
       if (!file.patch) continue;
+      if (debug) {
+        core.info(`Processing file: ${file.filename}\nPatch:\n${file.patch}`);
+      }
       const lines = file.patch.split('\n');
       let newLine = 0;
       for (const line of lines) {
+        // Match Git unified diff headers to track line numbers. The first part of
+        // the regex (`^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@`) matches the entire
+        // header, and the \+(\d+) part captures the line number that the current
+        // block of lines starts on in the resulting file. The exec() method
+        // returns an array where the first element is the full match and the
+        // second element is the captured group, which is the line number.
         const header = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
         if (header) {
           newLine = parseInt(header[1], 10) - 1;
 
+        // Added lines
         } else if (line.startsWith('+') && !line.startsWith('+++')) {
           newLine++;
           const text = line.slice(1);
@@ -71,9 +83,13 @@ async function run() {
                 .replace('{match}', matchedText);
 
               core[lvl](message, { file: file.filename, startLine: newLine})
+              if (debug) {
+                core.info(`[debug] Matched rule ${rule.regex} in ${file.filename} at line ${newLine}: ${matchedText}`);
+              }
             }
           }
 
+        // Removed lines
         } else if (!line.startsWith('-')) {
           ++newLine;
         }
