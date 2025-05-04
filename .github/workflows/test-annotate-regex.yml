@@ -1,0 +1,20 @@
+name: Local Test PR Annotate Regex
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  annotate:
+    runs-on: ubuntu-latest
+    steps:
+      # - uses: actions/checkout@v3
+      - name: Run PR Annotate Regex
+        uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          rules: |
+            [
+              {"regex": "TODO", "annotation-level": "warning", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
+              {"regex": "console\\.log", "annotation-level": "notice", "message": "Avoid console.log usage: {line}"}
+            ]
