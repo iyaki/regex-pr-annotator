@@ -6,6 +6,7 @@ async function run() {
     const token = core.getInput('github-token', { required: true });
     const regexInput = core.getInput('regex', { required: true });
     const level = core.getInput('annotation-level') || 'warning';
+    const messageTemplate = core.getInput('message');
     const regex = new RegExp(regexInput);
     const context = github.context;
 
@@ -39,7 +40,7 @@ async function run() {
               start_line: newLine,
               end_line: newLine,
               annotation_level: level,
-              message: `Line matches regex "${regexInput}"`
+              message: messageTemplate.replace('{regex}', regexInput).replace('{line}', text)
             });
           }
         } else if (!line.startsWith('-')) {
