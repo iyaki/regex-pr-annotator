@@ -1,0 +1,16 @@
+name: 'PR Annotate Regex'
+description: 'Annotate pull requests based on regex findings in added lines'
+inputs:
+  github-token:
+    description: 'GitHub token for API calls'
+    required: true
+  regex:
+    description: 'Regular expression to match on added lines'
+    required: true
+  annotation-level:
+    description: 'Annotation level: notice, warning, or failure'
+    required: false
+    default: 'warning'
+runs:
+  using: 'node20'
+  main: 'index.js'

@@ -1,0 +1,14 @@
+{
+  "name": "pr-annotate-regex",
+  "description": "Annotate PRs based on regex findings",
+  "author": "iyaki",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
+  }
+}
