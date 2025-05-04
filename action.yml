@@ -1,5 +1,7 @@
 name: 'Regex PR Annotator'
 description: 'Annotate pull requests based on regex findings in added lines'
+icon: 'align-left'
+color: 'yellow'
 inputs:
   github-token:
     description: 'GitHub token for API calls (optional; falls back to GITHUB_TOKEN env var)'
