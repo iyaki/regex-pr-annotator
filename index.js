@@ -40,6 +40,12 @@ async function run() {
           newLine++;
           const text = line.slice(1);
           for (const rule of rules) {
+            if (rule.paths) {
+              const patterns = Array.isArray(rule.paths) ? rule.paths : [rule.paths];
+              if (!patterns.some(p => new RegExp(p).test(file.filename))) {
+                continue;
+              }
+            }
             const re = new RegExp(rule.regex);
             if (re.test(text)) {
               const lvl = rule['annotation-level'] || 'warning';

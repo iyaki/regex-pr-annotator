@@ -5,7 +5,7 @@ inputs:
     description: 'GitHub token for API calls'
     required: true
   rules:
-    description: 'JSON array of rule objects, each with fields: regex, annotation-level, and message'
+    description: 'JSON array of rule objects, each with fields: regex, annotation-level, message, and optional paths (regex patterns for file filtering)'
     required: true
 runs:
   using: 'node20'
