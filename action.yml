@@ -11,6 +11,10 @@ inputs:
     description: 'Annotation level: notice, warning, or failure'
     required: false
     default: 'warning'
+  message:
+    description: 'Annotation message; use {regex} to include the regex and {line} to include the matching line'
+    required: false
+    default: 'Line matches regex "{regex}"'
 runs:
   using: 'node20'
   main: 'index.js'
