@@ -15,6 +15,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           rules: |
             [
-              {"regex": "TODO", "annotation-level": "warning", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
-              {"regex": "console\\.log", "annotation-level": "notice", "message": "Avoid console.log usage: {line}"}
+              {"regex": "TODO", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
+              {"regex": "console\\.log", "annotation-level": "error", "message": "Avoid console.log usage: {line}"}
             ]
