@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Annotate PR with Regex
-        uses: iyaki/pr-annotate-regex@v1
+        uses: iyaki/regex-pr-annotator@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           rules: |
