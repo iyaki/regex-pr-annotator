@@ -16,5 +16,5 @@ jobs:
           rules: |
             [
               {"regex": "TODO", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
-              {"regex": "console\\.log", "annotation-level": "error", "message": "Avoid console.log usage: {line}"}
+              {"regex": "console\\.log", "level": "error", "message": "Avoid console.log usage on commited code"}
             ]
