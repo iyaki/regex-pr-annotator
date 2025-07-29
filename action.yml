@@ -6,9 +6,9 @@ branding:
   color: 'yellow'
 
 inputs:
-  github-token:
-    description: 'GitHub token for API calls (optional; falls back to GITHUB_TOKEN env var)'
-    required: false
+  github_token:
+    description: 'GitHub token for API calls'
+    default: '${{ github.token }}'
   rules:
     description: 'JSON array of rule objects, each with fields: regex, message (supports {regex}, {line}, {match}), level (optional, default: warning), and paths (optional, regex patterns for file filtering)'
     required: true

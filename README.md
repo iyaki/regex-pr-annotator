@@ -15,13 +15,13 @@
 
 ## Inputs
 
-### `github-token` (optional)
+### `github_token` (optional)
 
-A GitHub token for API calls. Defaults to the `GITHUB_TOKEN` environment variable.
+GitHub token for API calls. Default: `${{ github.token }}`
 
 ### `rules` (required)
 
-A JSON array of rule objects. Each rule supports:
+JSON array of rule objects, each with fields:
 
 - `regex`: **string** – The regular expression to test added lines.
 - `message`: **string** – Annotation message supporting placeholders:
@@ -31,16 +31,13 @@ A JSON array of rule objects. Each rule supports:
 - `level`: **string** – Annotation level (`notice`, `warning`, or `error`). Default: `warning`.
 - `paths`: **string or array** – Optional regex pattern(s) to filter target files.
 
-### `fail_level` (optional)
-
-Minimum annotation level that causes the action to fail. Possible values: `none` (default), `notice`, `warning`, `error`.
-
-- If set to `none`, the action never fails due to annotation level.
-- If set to e.g. `warning`, the action fails if any annotation is `warning` or `error`.
-
 ### `debug` (optional)
 
 Enable debug logging: outputs patches and match info. Default: `false`.
+
+### `fail_level` (optional)
+
+Minimum level (`notice`, `warning`, `error`) that causes the action to fail. Use `none` to never fail. Default: `none`.
 
 ## Example: How to Use Regex PR Annotator in Your Workflow
 
