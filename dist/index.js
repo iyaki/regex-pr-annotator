@@ -31954,8 +31954,20 @@ async function run() {
 
     if (findings.length > 0) {
       console.log('\n================ Regex PR Annotator Findings ================')
+      // Calculate column widths
+      const levelWidth = Math.max(5, ...findings.map(f => f.level.length))
+      const locationWidth = Math.max(12, ...findings.map(f => `${f.file}:${f.line}`.length))
+      // Header
+      console.log(
+        `${'LEVEL'.padEnd(levelWidth)} | ${'LOCATION'.padEnd(locationWidth)} | MESSAGE`
+      )
+      console.log('-'.repeat(levelWidth + locationWidth + 13 + 5))
+      // Rows
       for (const f of findings) {
-        console.log(`[${f.level.toUpperCase()}] ${f.file}:${f.line} - ${f.message}`)
+        const location = `${f.file}:${f.line}`
+        console.log(
+          `${f.level.toUpperCase().padEnd(levelWidth)} | ${location.padEnd(locationWidth)} | ${f.message}`
+        )
       }
       console.log('============================================================\n')
     }
