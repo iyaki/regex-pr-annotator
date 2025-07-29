@@ -1882,6 +1882,7 @@ class Context {
         this.action = process.env.GITHUB_ACTION;
         this.actor = process.env.GITHUB_ACTOR;
         this.job = process.env.GITHUB_JOB;
+        this.runAttempt = parseInt(process.env.GITHUB_RUN_ATTEMPT, 10);
         this.runNumber = parseInt(process.env.GITHUB_RUN_NUMBER, 10);
         this.runId = parseInt(process.env.GITHUB_RUN_ID, 10);
         this.apiUrl = (_a = process.env.GITHUB_API_URL) !== null && _a !== void 0 ? _a : `https://api.github.com`;
@@ -31837,6 +31838,16 @@ async function run() {
       return;
     }
     const debug = core.getInput('debug') === 'true';
+    const failLevelInput = core.getInput('fail_level') || 'none';
+    const validLevels = ['notice', 'warning', 'error'];
+    const failLevel = failLevelInput.toLowerCase();
+    if (failLevel !== 'none' && !validLevels.includes(failLevel)) {
+      core.setFailed(`Invalid fail_level '${failLevel}'. Must be one of none, notice, warning, or error.`);
+      return;
+    }
+    // failLevelRank: none=-1, notice=0, warning=1, error=2
+    const failLevelRank = failLevel === 'none' ? -1 : validLevels.indexOf(failLevel);
+    let maxMatchedLevel = -1;
 
     const rulesInput = core.getInput('rules', { required: true });
     let rules;
@@ -31848,8 +31859,6 @@ async function run() {
       return;
     }
     if (debug) core.info(`Parsed rules: ${JSON.stringify(rules)}`);
-
-    const validLevels = ['notice', 'warning', 'error'];
 
     const context = github.context;
 
@@ -31863,6 +31872,8 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     const { data: files } = await octokit.rest.pulls.listFiles({ owner, repo, pull_number: prNumber });
+
+    let findings = [];
 
     for (const file of files) {
       if (!file.patch) continue;
@@ -31909,8 +31920,17 @@ async function run() {
                 .replace('{regex}', rule.regex)
                 .replace('{line}', text)
                 .replace('{match}', matchedText);
-
-              core[lvl](message, { file: file.filename, startLine: newLine})
+              core[lvl](message, { file: file.filename, startLine: newLine});
+              // Guardar hallazgo para mostrar al final
+              findings.push({
+                level: lvl,
+                file: file.filename,
+                line: newLine,
+                message
+              });
+              // Track max matched level
+              const lvlRank = validLevels.indexOf(lvl);
+              if (lvlRank > maxMatchedLevel) maxMatchedLevel = lvlRank;
               if (debug) {
                 core.info(`[debug] Matched rule ${rule.regex} in ${file.filename} at line ${newLine}: ${matchedText}`);
               }
@@ -31923,7 +31943,18 @@ async function run() {
         }
       }
     }
+    // Fail if any annotation matches or exceeds fail_level
+    if (failLevelRank >= 0 && maxMatchedLevel >= failLevelRank) {
+      core.setFailed(`At least one annotation with level '${validLevels[maxMatchedLevel]}' (fail_level: '${failLevel}') was found.`);
+    }
 
+    if (findings.length > 0) {
+      console.log('\n================ Regex PR Annotator Findings ================');
+      for (const f of findings) {
+        console.log(`[${f.level.toUpperCase()}] ${f.file}:${f.line} - ${f.message}`);
+      }
+      console.log('============================================================\n');
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

@@ -16,6 +16,10 @@ inputs:
     description: 'Enable debug logging: outputs patches and match info'
     required: false
     default: 'false'
+  fail_level:
+    description: 'Minimum level (notice, warning, error) that causes the action to fail. Use "none" to never fail.'
+    required: false
+    default: 'none'
 
 runs:
   using: 'node20'
