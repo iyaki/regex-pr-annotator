@@ -12,7 +12,6 @@ jobs:
       - name: Run PR Annotate Regex
         uses: ./
         with:
-          fail_level: 'error'
           rules: |
             [
               {"regex": "TODO", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
