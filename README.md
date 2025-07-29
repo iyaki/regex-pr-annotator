@@ -10,15 +10,19 @@
 - **Customizable Regex Rules:** Define your own regex patterns to match code smells, TODOs, or forbidden code.
 - **Inline PR Annotations:** Automatically add GitHub annotations to pull requests for matched lines.
 - **Flexible Configuration:** Set annotation levels (`notice`, `warning`, `error`) and target specific file paths.
+- **Fail the workflow based on annotation level:** Use `fail_level` to fail the workflow if any annotation matches or exceeds the specified level.
 - **Easy Integration:** Works out-of-the-box with GitHub Actions workflows.
 
 ## Inputs
 
-### `github-token` (optional)
-A GitHub token for API calls. Defaults to the `GITHUB_TOKEN` environment variable.
+### `github_token` (optional)
+
+GitHub token for API calls. Default: `${{ github.token }}`
 
 ### `rules` (required)
-A JSON array of rule objects. Each rule supports:
+
+JSON array of rule objects, each with fields:
+
 - `regex`: **string** – The regular expression to test added lines.
 - `message`: **string** – Annotation message supporting placeholders:
   - `{regex}`: the rule's regex.
@@ -26,6 +30,14 @@ A JSON array of rule objects. Each rule supports:
   - `{match}`: the matched substring.
 - `level`: **string** – Annotation level (`notice`, `warning`, or `error`). Default: `warning`.
 - `paths`: **string or array** – Optional regex pattern(s) to filter target files.
+
+### `debug` (optional)
+
+Enable debug logging: outputs patches and match info. Default: `false`.
+
+### `fail_level` (optional)
+
+Minimum level (`notice`, `warning`, `error`) that causes the action to fail. Use `none` to never fail. Default: `none`.
 
 ## Example: How to Use Regex PR Annotator in Your Workflow
 
@@ -58,6 +70,7 @@ jobs:
                 "message": "Avoid console.log: found '{match}'"
               }
             ]
+          fail_level: warning  # Fail if any warning or error annotation is found
 ```
 
 ## Example Results
