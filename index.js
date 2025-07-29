@@ -6,7 +6,7 @@ async function run() {
     const token = core.getInput('github_token')
     if (!token) {
       core.setFailed('GitHub token is required')
-      return
+      return;
     }
     const debug = core.getInput('debug') === 'true'
     const failLevelInput = core.getInput('fail_level') || 'none'
@@ -63,17 +63,9 @@ async function run() {
         const header = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(line);
         if (header) {
           newLine = parseInt(header[1], 10) - 1
-          continue
-        }
-
-        // Removed lines
-        if (!line.startsWith('-')) {
-          ++newLine
-          continue
-        }
 
         // Added lines
-        if (line.startsWith('+') && !line.startsWith('+++')) {
+        } else if (line.startsWith('+') && !line.startsWith('+++')) {
           newLine++
           const text = line.slice(1)
           for (const rule of rules) {
@@ -99,6 +91,7 @@ async function run() {
                 .replace('{regex}', rule.regex)
                 .replace('{line}', text)
                 .replace('{match}', matchedText)
+
               core[lvl](message, { file: file.filename, startLine: newLine })
 
               // Save finding to display at the end
@@ -108,19 +101,22 @@ async function run() {
                 line: newLine,
                 message
               })
+
               // Track max matched level
               const lvlRank = validLevels.indexOf(lvl)
               if (lvlRank > maxMatchedLevel) maxMatchedLevel = lvlRank
-
               if (debug) {
                 core.info(`[debug] Matched rule ${rule.regex} in ${file.filename} at line ${newLine}: ${matchedText}`)
               }
             }
           }
+
+        // Removed lines
+        } else if (!line.startsWith('-')) {
+          ++newLine
         }
       }
     }
-
     // Fail if any annotation matches or exceeds fail_level
     if (failLevelRank >= 0 && maxMatchedLevel >= failLevelRank) {
       core.setFailed(`At least one annotation with level '${validLevels[maxMatchedLevel]}' (fail_level: '${failLevel}') was found.`)
