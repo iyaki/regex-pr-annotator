@@ -12,7 +12,7 @@ jobs:
       - name: Run PR Annotate Regex
         uses: ./
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fail_level: 'error'
           rules: |
             [
               {"regex": "TODO", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
