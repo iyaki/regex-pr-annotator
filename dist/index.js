@@ -31948,7 +31948,8 @@ async function run() {
     }
     // Fail if any annotation matches or exceeds fail_level
     if (failLevelRank >= 0 && maxMatchedLevel >= failLevelRank) {
-      core.setFailed(`At least one annotation with level '${validLevels[maxMatchedLevel]}' (fail_level: '${failLevel}') was found.`)
+      console.log('\n');
+      core.setFailed(`❌ Regex PR Annotator: Findings with level '${validLevels[maxMatchedLevel]}' or higher were detected (fail_level: '${failLevel}').\nPlease review the findings listed above and address the issues before continuing.`)
     }
 
     if (findings.length > 0) {
