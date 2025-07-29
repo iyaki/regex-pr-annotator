@@ -31829,6 +31829,37 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484)
 const github = __nccwpck_require__(3228)
+const path = __nccwpck_require__(6928)
+const fs = __nccwpck_require__(9896)
+const { pathToFileURL } = __nccwpck_require__(7016)
+
+async function loadRules(rulesInput) {
+  // If rulesInput looks like a JS file path, require it (CommonJS preferred)
+  if (typeof rulesInput === 'string' && (rulesInput.endsWith('.js') || rulesInput.endsWith('.mjs'))) {
+    const absPath = path.isAbsolute(rulesInput)
+      ? rulesInput
+      : path.join(process.env.GITHUB_WORKSPACE || process.cwd(), rulesInput)
+    if (!fs.existsSync(absPath)) {
+      throw new Error(`Rules file not found: ${absPath}`)
+    }
+    // Use require for JS rules file
+    let imported
+    try {
+      imported = require(absPath)
+    } catch (e) {
+      throw new Error(`Could not require rules file: ${e.message}`)
+    }
+    if (!imported.default && !imported.rules && !Array.isArray(imported)) {
+      throw new Error('Rules JS file must export default, named export "rules" (array), or be an array itself')
+    }
+    return imported.default || imported.rules || imported
+  } else {
+    // Parse as JSON
+    const parsed = JSON.parse(rulesInput)
+    if (!Array.isArray(parsed)) throw new Error('`rules` must be a JSON array')
+    return parsed
+  }
+}
 
 async function run() {
   try {
@@ -31852,10 +31883,9 @@ async function run() {
     const rulesInput = core.getInput('rules', { required: true })
     let rules
     try {
-      rules = JSON.parse(rulesInput)
-      if (!Array.isArray(rules)) throw new Error('`rules` must be a JSON array')
+      rules = await loadRules(rulesInput)
     } catch (err) {
-      core.setFailed(`Invalid JSON for rules: ${err.message}`)
+      core.setFailed(`Invalid rules: ${err.message}`)
       return
     }
     if (debug) core.info(`Parsed rules: ${JSON.stringify(rules)}`)
@@ -31898,9 +31928,12 @@ async function run() {
           newLine++
           const text = line.slice(1)
           for (const rule of rules) {
+            // Support RegExp or string for paths
             if (rule.paths) {
               const patterns = Array.isArray(rule.paths) ? rule.paths : [rule.paths]
-              if (!patterns.some(p => new RegExp(p).test(file.filename))) {
+              if (!patterns.some(p =>
+                (p instanceof RegExp ? p.test(file.filename) : new RegExp(p).test(file.filename))
+              )) {
                 continue
               }
             }
@@ -31911,13 +31944,14 @@ async function run() {
               return
             }
 
-            const re = new RegExp(rule.regex)
+            // Support RegExp or string for regex
+            const re = rule.regex instanceof RegExp ? rule.regex : new RegExp(rule.regex)
             if (re.test(text)) {
               const msgTemplate = rule.message || 'Line matches regex "{regex}"'
               const matchRes = text.match(re)
               const matchedText = matchRes ? matchRes[0] : ''
               const message = msgTemplate
-                .replace('{regex}', rule.regex)
+                .replace('{regex}', rule.regex instanceof RegExp ? rule.regex.source : rule.regex)
                 .replace('{line}', text)
                 .replace('{match}', matchedText)
 
@@ -31935,7 +31969,7 @@ async function run() {
               const lvlRank = validLevels.indexOf(lvl)
               if (lvlRank > maxMatchedLevel) maxMatchedLevel = lvlRank
               if (debug) {
-                core.info(`[debug] Matched rule ${rule.regex} in ${file.filename} at line ${newLine}: ${matchedText}`)
+                core.info(`[debug] Matched rule ${rule.regex instanceof RegExp ? rule.regex.source : rule.regex} in ${file.filename} at line ${newLine}: ${matchedText}`)
               }
             }
           }
