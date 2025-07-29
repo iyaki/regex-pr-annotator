@@ -9,8 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run PR Annotate Regex
+
+      - run: |
+          pwd
+          ls -la
+
+      - name: Run PR Annotate Regex (JSON rules)
         uses: ./
+        if: always()
         with:
           fail_level: 'error'
           rules: |
@@ -18,3 +24,10 @@ jobs:
               {"regex": "TODO", "message": "Found TODO: {line}", "paths": ["\\.js$"]},
               {"regex": "console\\.log", "level": "error", "message": "Avoid console.log usage on commited code"}
             ]
+
+      - name: Run PR Annotate Regex (JS file rules)
+        uses: ./
+        if: always()
+        with:
+          fail_level: 'error'
+          rules: test/rules-sample.js
