@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Annotate PR with Regex
-        uses: iyaki/regex-pr-annotator@v2
+        uses: iyaki/regex-pr-annotator@v2.1.0
         with:
           rules: |
             [
@@ -88,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Annotate PR with Regex
-        uses: iyaki/regex-pr-annotator@v2
+        uses: iyaki/regex-pr-annotator@v2.1.0
         with:
           fail_level: 'error'
           rules: test/rules-sample.js  # See sample file in this repo
