@@ -21,15 +21,15 @@ GitHub token for API calls. Default: `${{ github.token }}`
 
 ### `rules` (required)
 
-JSON array of rule objects, each with fields:
+A JSON array of rule objects, **or a path to a JS file (CommonJS) exporting an array of rules**. Each rule supports:
 
-- `regex`: **string** – The regular expression to test added lines.
+- `regex`: **string or RegExp** – The regular expression to test added lines.
 - `message`: **string** – Annotation message supporting placeholders:
   - `{regex}`: the rule's regex.
   - `{line}`: the full text of the added line.
   - `{match}`: the matched substring.
 - `level`: **string** – Annotation level (`notice`, `warning`, or `error`). Default: `warning`.
-- `paths`: **string or array** – Optional regex pattern(s) to filter target files.
+- `paths`: **string, RegExp, or array** – Optional regex pattern(s) to filter target files.
 
 ### `debug` (optional)
 
@@ -40,6 +40,8 @@ Enable debug logging: outputs patches and match info. Default: `false`.
 Minimum level (`notice`, `warning`, `error`) that causes the action to fail. Use `none` to never fail. Default: `none`.
 
 ## Example: How to Use Regex PR Annotator in Your Workflow
+
+### Using a JSON array
 
 ```yaml
 name: PR Regex Annotation
@@ -54,23 +56,59 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Annotate PR with Regex
-        uses: iyaki/regex-pr-annotator@v1
+        uses: iyaki/regex-pr-annotator@v2
         with:
           rules: |
             [
               {
                 "regex": "TODO",
-                "level": "warning",
                 "message": "Found TODO: {line}",
                 "paths": ["\\.js$"]
               },
               {
-                "regex": "console\\.log",
-                "level": "notice",
-                "message": "Avoid console.log: found '{match}'"
+                "regex": "console\\.[log|debug|info|warn|error]",
+                "level": "error",
+                "message": "Avoid console.* usage on commited code"
               }
             ]
-          fail_level: warning  # Fail if any warning or error annotation is found
+```
+
+### Using a JS file (CommonJS)
+
+```yaml
+name: PR Regex Annotation
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  annotate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Annotate PR with Regex
+        uses: iyaki/regex-pr-annotator@v2
+        with:
+          fail_level: 'error'
+          rules: test/rules-sample.js  # See sample file in this repo
+```
+
+Where [`test/rules-sample.js`](./test/rules-sample.js) contains:
+
+```js
+module.exports = [
+  {
+    regex: /TODO/,
+    message: 'Found TODO: {line}',
+    paths: [/\.js$/]
+  },
+  {
+    regex: /console\\.log/,
+    level: 'error',
+    message: 'Avoid console.log usage on commited code'
+  }
+]
 ```
 
 ## Example Results
