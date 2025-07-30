@@ -10,7 +10,7 @@ inputs:
     description: 'GitHub token for API calls'
     default: '${{ github.token }}'
   rules:
-    description: 'JSON array of rule objects, each with fields: regex, message (supports {regex}, {line}, {match}), level (optional, default: warning), and paths (optional, regex patterns for file filtering)'
+    description: 'JSON array of rule objects, or a path to a JS file (CommonJS) exporting an array. Each rule supports: regex, message (supports {regex}, {line}, {match}), level (optional, default: warning), and paths (optional, regex patterns for file filtering)'
     required: true
   debug:
     description: 'Enable debug logging: outputs patches and match info'
