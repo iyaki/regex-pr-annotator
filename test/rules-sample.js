@@ -1,6 +1,6 @@
 // test/rules-sample.js
 // Export rules as CommonJS (for Node require compatibility)
-module.exports = [
+export default [
   {
     regex: /TODO/,
     message: 'Found TODO: {line}',

@@ -1,8 +1,7 @@
-const core = require('@actions/core')
-const github = require('@actions/github')
-const path = require('path')
-const fs = require('fs')
-const { pathToFileURL } = require('url')
+import core from '@actions/core'
+import github from '@actions/github'
+import path from 'path'
+import fs from 'fs'
 
 async function loadRules(rulesInput) {
   // If rulesInput looks like a JS file path, require it (CommonJS preferred)
@@ -16,9 +15,9 @@ async function loadRules(rulesInput) {
     // Use require for JS rules file
     let imported
     try {
-      imported = require(absPath)
+      imported = (await import(absPath))
     } catch (e) {
-      throw new Error(`Could not require rules file: ${e.message}`)
+      throw new Error(`Could not import rules file: ${e.message}`)
     }
     if (!imported.default && !imported.rules && !Array.isArray(imported)) {
       throw new Error('Rules JS file must export default, named export "rules" (array), or be an array itself')
@@ -181,11 +180,11 @@ async function run() {
   }
 }
 
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   run()
 }
 
-module.exports = {
+export {
   loadRules,
   run
 }

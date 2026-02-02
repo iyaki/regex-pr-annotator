@@ -2,10 +2,11 @@
   "name": "pr-annotate-regex",
   "description": "Annotate PRs based on regex findings",
   "author": "iyaki",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:mutation": "stryker run",
     "build": "ncc build index.js"
   },
@@ -14,9 +15,10 @@
     "@actions/github": "^8.0.0"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^9.4.0",
-    "@stryker-mutator/jest-runner": "^9.4.0",
+    "@stryker-mutator/core": "^9.5.1",
+    "@stryker-mutator/vitest-runner": "^9.5.1",
     "@vercel/ncc": "^0.38.4",
-    "jest": "^30.2.0"
+    "@vitest/coverage-v8": "^4.0.18",
+    "vitest": "^4.0.18"
   }
 }
