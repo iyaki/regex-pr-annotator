@@ -97,7 +97,7 @@ jobs:
 Where [`test/rules-sample.js`](./test/rules-sample.js) contains:
 
 ```js
-module.exports = [
+export default [
   {
     regex: /TODO/,
     message: 'Found TODO: {line}',
