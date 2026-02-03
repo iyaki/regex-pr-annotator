@@ -35608,7 +35608,10 @@ function getOctokit(token, options, ...additionalPlugins) {
 //# sourceMappingURL=github.js.map
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(6928);
+;// CONCATENATED MODULE: external "url"
+const external_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("url");
 ;// CONCATENATED MODULE: ./index.js
+
 
 
 
@@ -35625,7 +35628,9 @@ async function loadRules(rulesInput) {
     }
     let imported
     try {
-      imported = (await __nccwpck_require__(330)(absPath))
+      // Use pathToFileURL for proper module resolution
+      const fileUrl = (0,external_url_namespaceObject.pathToFileURL)(absPath)
+      imported = (await __nccwpck_require__(330)(fileUrl.href))
     } catch (e) {
       throw new Error(`Could not import rules file: ${e.message}`)
     }
