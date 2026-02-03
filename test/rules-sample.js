@@ -1,5 +1,4 @@
 // test/rules-sample.js
-// Export rules as CommonJS (for Node require compatibility)
 export default [
   {
     regex: /TODO/,
