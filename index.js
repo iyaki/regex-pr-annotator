@@ -12,7 +12,6 @@ async function loadRules(rulesInput) {
     if (!fs.existsSync(absPath)) {
       throw new Error(`Rules file not found: ${absPath}`)
     }
-    // Use require for JS rules file
     let imported
     try {
       imported = (await import(absPath))

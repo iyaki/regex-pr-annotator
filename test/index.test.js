@@ -36,16 +36,15 @@ describe('regex-pr-annotator', () => {
     });
 
     it('should load rules from a JS file', async () => {
-      const rulesPath = path.join(__dirname, '../test/rules-sample.js');
       // Create a dummy rules file for testing if it doesn't exist or mock require
       // Since we are running in the actual environment, let's assume the file exists or create a temp one.
       // Actually, let's mock the file require if possible, but loadRules uses require() dynamically.
       // For simplicity in this environment, let's rely on the existing sample files or create one.
 
       // Let's create a temporary file for this test to be robust
-      const fs = require('fs');
+      const fs = await import('fs');
       const tempRulesPath = path.join(__dirname, 'temp-rules.js');
-      fs.writeFileSync(tempRulesPath, 'module.exports = [{ regex: "temp", level: "notice" }]');
+      fs.writeFileSync(tempRulesPath, 'export default [{ regex: "temp", level: "notice" }]');
 
       try {
         const loaded = await loadRules(tempRulesPath);

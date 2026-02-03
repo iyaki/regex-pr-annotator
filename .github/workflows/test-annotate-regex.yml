@@ -11,8 +11,12 @@ jobs:
       - uses: actions/checkout@v6
 
       - run: |
+          printf "\npwd:\n"
           pwd
+          printf "\nls -la:\n"
           ls -la
+          printf "\nls -la test:\n"
+          ls -la test
 
       - name: Run PR Annotate Regex (JSON rules)
         uses: ./
