@@ -2,6 +2,7 @@ import core from '@actions/core'
 import { context, getOctokit } from '@actions/github'
 import path from 'path'
 import fs from 'fs'
+import { pathToFileURL } from 'url'
 
 async function loadRules(rulesInput) {
   // If rulesInput looks like a JS file path, require it (CommonJS preferred)
@@ -14,7 +15,9 @@ async function loadRules(rulesInput) {
     }
     let imported
     try {
-      imported = (await import(absPath))
+      // Use pathToFileURL for proper module resolution
+      const fileUrl = pathToFileURL(absPath)
+      imported = (await import(fileUrl.href))
     } catch (e) {
       throw new Error(`Could not import rules file: ${e.message}`)
     }

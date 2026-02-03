@@ -7,15 +7,21 @@ import { loadRules, run } from '../index';
 import { mockRepoGetter } from './vitest-helpers.js';
 
 vi.mock('@actions/core');
-vi.mock('@actions/github', () => ({
+vi.mock('@actions/github', () => {
+  const mockContext = {
+    payload: {},
+    repo: { owner: '', repo: '' }
+  };
+  const mockGetOctokit = vi.fn();
+  return ({
   default: {
-    context: {
-      payload: {},
-      repo: { owner: '', repo: '' }
-    },
-    getOctokit: vi.fn()
-  }
-}));
+    context: mockContext,
+    getOctokit: mockGetOctokit
+  },
+  context: mockContext,
+  getOctokit: mockGetOctokit
+  });
+});
 
 describe('regex-pr-annotator', () => {
   beforeEach(() => {
