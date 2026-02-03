@@ -20,7 +20,13 @@ async function loadRules(rulesInput) {
     try {
       // Use pathToFileURL for proper module resolution
       const fileUrl = pathToFileURL(absPath)
-      imported = (await dynamicImport(fileUrl.href))
+      try {
+        // Try dynamic import hack first (works in production bundle)
+        imported = (await dynamicImport(fileUrl.href))
+      } catch (dynamicImportError) {
+        // Fallback to native import for test environments
+        imported = (await import(fileUrl.href))
+      }
     } catch (e) {
       throw new Error(`Could not import rules file: ${e.message}`)
     }

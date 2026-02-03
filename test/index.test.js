@@ -1,12 +1,19 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import core from '@actions/core';
+import * as core from '@actions/core';
 import github from '@actions/github';
 import path from 'path';
 import { loadRules, run } from '../index';
 import { mockRepoGetter } from './vitest-helpers.js';
 
-vi.mock('@actions/core');
+vi.mock('@actions/core', () => ({
+  getInput: vi.fn(),
+  setFailed: vi.fn(),
+  info: vi.fn(),
+  notice: vi.fn(),
+  warning: vi.fn(),
+  error: vi.fn()
+}));
 vi.mock('@actions/github', () => {
   const mockContext = {
     payload: {},
