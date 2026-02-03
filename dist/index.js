@@ -31022,25 +31022,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ 330:
-/***/ ((module) => {
-
-function webpackEmptyAsyncContext(req) {
-	// Here Promise.resolve().then() is used instead of new Promise() to prevent
-	// uncaught exception popping up in devtools
-	return Promise.resolve().then(() => {
-		var e = new Error("Cannot find module '" + req + "'");
-		e.code = 'MODULE_NOT_FOUND';
-		throw e;
-	});
-}
-webpackEmptyAsyncContext.keys = () => ([]);
-webpackEmptyAsyncContext.resolve = webpackEmptyAsyncContext;
-webpackEmptyAsyncContext.id = 330;
-module.exports = webpackEmptyAsyncContext;
-
-/***/ }),
-
 /***/ 2613:
 /***/ ((module) => {
 
@@ -35617,6 +35598,9 @@ const external_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.met
 
 
 
+// Avoid bundler rewriting dynamic import in dist output
+const dynamicImport = new Function('specifier', 'return import(specifier)')
+
 async function loadRules(rulesInput) {
   // If rulesInput looks like a JS file path, require it (CommonJS preferred)
   if (typeof rulesInput === 'string' && (rulesInput.endsWith('.js') || rulesInput.endsWith('.mjs'))) {
@@ -35630,7 +35614,7 @@ async function loadRules(rulesInput) {
     try {
       // Use pathToFileURL for proper module resolution
       const fileUrl = (0,external_url_namespaceObject.pathToFileURL)(absPath)
-      imported = (await __nccwpck_require__(330)(fileUrl.href))
+      imported = (await dynamicImport(fileUrl.href))
     } catch (e) {
       throw new Error(`Could not import rules file: ${e.message}`)
     }

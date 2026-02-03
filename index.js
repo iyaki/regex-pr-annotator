@@ -4,6 +4,9 @@ import path from 'path'
 import fs from 'fs'
 import { pathToFileURL } from 'url'
 
+// Avoid bundler rewriting dynamic import in dist output
+const dynamicImport = new Function('specifier', 'return import(specifier)')
+
 async function loadRules(rulesInput) {
   // If rulesInput looks like a JS file path, require it (CommonJS preferred)
   if (typeof rulesInput === 'string' && (rulesInput.endsWith('.js') || rulesInput.endsWith('.mjs'))) {
@@ -17,7 +20,7 @@ async function loadRules(rulesInput) {
     try {
       // Use pathToFileURL for proper module resolution
       const fileUrl = pathToFileURL(absPath)
-      imported = (await import(fileUrl.href))
+      imported = (await dynamicImport(fileUrl.href))
     } catch (e) {
       throw new Error(`Could not import rules file: ${e.message}`)
     }
