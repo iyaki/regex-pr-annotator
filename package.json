@@ -14,7 +14,7 @@
     "@actions/github": "^7.0.0"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^9.4.0",
+    "@stryker-mutator/core": "^9.5.1",
     "@stryker-mutator/jest-runner": "^9.4.0",
     "@vercel/ncc": "^0.38.4",
     "jest": "^30.2.0"
