@@ -1,5 +1,5 @@
 import core from '@actions/core'
-import github from '@actions/github'
+import { context, getOctokit } from '@actions/github'
 import path from 'path'
 import fs from 'fs'
 
@@ -59,8 +59,6 @@ async function run() {
     }
     if (debug) core.info(`Parsed rules: ${JSON.stringify(rules)}`)
 
-    const context = github.context
-
     if (!context.payload.pull_request) {
       core.setFailed('Action must be run on pull_request events.')
       return
@@ -68,7 +66,7 @@ async function run() {
 
     const { owner, repo } = context.repo
     const prNumber = context.payload.pull_request.number
-    const octokit = github.getOctokit(token)
+    const octokit = getOctokit(token)
 
     const { data: files } = await octokit.rest.pulls.listFiles({ owner, repo, pull_number: prNumber })
 
