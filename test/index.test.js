@@ -7,11 +7,21 @@ import { loadRules, run } from '../index';
 import { mockRepoGetter } from './vitest-helpers.js';
 
 vi.mock('@actions/core');
-vi.mock('@actions/github');
+vi.mock('@actions/github', () => ({
+  default: {
+    context: {
+      payload: {},
+      repo: { owner: '', repo: '' }
+    },
+    getOctokit: vi.fn()
+  }
+}));
 
 describe('regex-pr-annotator', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset github context payload only (repo is a getter and handled by mockRepoGetter)
+    github.context.payload = {};
   });
 
   describe('loadRules', () => {
