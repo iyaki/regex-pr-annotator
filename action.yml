@@ -1,4 +1,7 @@
 name: 'Regex PR Annotator'
+deprecationMessage: >-
+  This action is deprecated and no longer maintained. Migrate to
+  reglint/reglint-action (https://github.com/reglint/reglint-action).
 description: 'Annotate pull requests based on regex findings in added lines'
 
 branding:

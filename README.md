@@ -1,3 +1,7 @@
+> [!WARNING]
+> **This action is deprecated and no longer maintained.**
+> Use [reglint/reglint-action](https://github.com/reglint/reglint-action) instead — it covers the same regex-annotation use cases with YAML-defined rules, works on all event types (not just `pull_request`), needs no token, and supports SARIF output.
+
 # Regex PR Annotator GitHub Action
 
 **Regex PR Annotator** is a GitHub Action that automatically [annotates](https://github.com/actions/toolkit/tree/main/packages/core#annotations) pull requests by applying configurable regular expression (regex) rules to added lines of code. Use this action to enforce code standards, highlight TODOs, or flag unwanted patterns in your codebase.
